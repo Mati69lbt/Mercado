@@ -1,0 +1,20 @@
+ // cspell: ignore cuit duenoCel duenoNombre encargadoCel encargadoNombre estaActiva descripcionCorta basico  categoria direccion
+ export const initialBusinessForm = {
+   nombreComercio: "",
+   ciudad: "",
+   barrio: "",
+   categoria: "",
+   duenoNombre: "",
+   duenoCel: "",
+   encargadoNombre: "",
+   encargadoCel: "",
+   emailEmpresa: "",
+   usuarioEmpresa: "",
+   passwordEmpresa: "",
+   direccion: "",
+   estaActiva: true,
+   cuit: "",
+   costoServicio: 0,
+   descripcionCorta: "",
+   logoUrl: "",
+ };
