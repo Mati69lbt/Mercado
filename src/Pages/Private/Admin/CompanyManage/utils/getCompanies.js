@@ -1,11 +1,10 @@
-// src/.../utils/getCompanies.js
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
-import { db } from "../../../../Firebase/config";
+import { db } from "../../../../../Firebase/config";
 
 
 export const subscribeToCompanies = (setCompanies) => {
   // Traemos la colección 'negocios' ordenada por fecha
-  const q = query(collection(db, "negocios"), orderBy("fechaAlta", "desc"));
+  const q = query(collection(db, "empresas"), orderBy("fechaAlta", "desc"));
 
   // onSnapshot nos permite ver cambios en tiempo real sin recargar
   return onSnapshot(q, (snapshot) => {
@@ -13,6 +12,8 @@ export const subscribeToCompanies = (setCompanies) => {
       id: doc.id,
       ...doc.data(),
     }));
+
+   
     setCompanies(companiesList);
   });
 };

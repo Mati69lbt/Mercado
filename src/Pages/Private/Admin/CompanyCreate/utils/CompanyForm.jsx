@@ -1,92 +1,17 @@
-// cspell: ignore notiflix querés
-import React, { useEffect, useState } from "react";
-import { auth } from "../../../../Firebase/config";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { signOut } from "firebase/auth";
-import { Navigate } from "react-router-dom";
-import { Loading } from "notiflix/build/notiflix-loading-aio";
-import { Confirm } from "notiflix/build/notiflix-confirm-aio";
-import useForm from "../../../../hooks/useForm";
-import { initialBusinessForm } from "../utils/configCompany";
-import { handleSubmit } from "../utils/creatCompany";
-const Admin = () => {
-  const [user, loading] = useAuthState(auth);
-  const { form, changed, setValue } = useForm(initialBusinessForm);
-  const [logoFile, setLogoFile] = useState(null);
+// cspell: ignore duenoCel duenoNombre encargadoCel encargadoNombre cuit costoServicio productoSorteo fechaSorteo CUIL Informacion  categoria  descripcionCorta direccion panaderiaelsol 
 
-  useEffect(() => {
-    if (loading) {
-      // Configuramos el estilo y lo mostramos
-      Loading.pulse("Verificando credenciales...", {
-        backgroundColor: "rgba(0,0,0,0.8)",
-        svgColor: "#4f46e5",
-      });
-    } else {
-      Loading.remove();
-    }
-  }, [loading]);
-
-  if (!loading && !user) {
-    return <Navigate to="/" />;
-  }
-
-  if (loading) return null;
-
-  const handleFileChange = (e) => {
-    if (e.target.files[0]) {
-      setLogoFile(e.target.files[0]);
-    }
-  };
-
-  const handleLogout = () => {
-    Confirm.show(
-      "Cerrar Sesión",
-      "¿Estás seguro de que querés salir? No te rindas ahora.",
-      "Sí, salir",
-      "No, me quedo",
-      async () => {
-        // Esto se ejecuta si el usuario hace clic en "Sí"
-        try {
-          Loading.standard("Cerrando sesión...");
-          await signOut(auth);
-          Loading.remove();
-        } catch (error) {
-          Loading.remove();
-          console.error("Error al cerrar sesión:", error);
-        }
-      },
-      () => {
-        // Esto se ejecuta si el usuario hace clic en "No"
-        // No hace falta poner nada, solo se cierra el cartel
-      },
-      {
-        // Personalización de colores para que pegue con tu estilo
-        titleColor: "#1f2937",
-        okButtonBackground: "#dc2626", // Rojo para salir
-        cancelButtonBackground: "#4b5563",
-        borderRadius: "12px",
-      },
-    );
-  };
-
+const CompanyForm = ({
+  form,
+  changed,
+  setValue,
+  handleSubmit,
+  logoFile,
+  handleFileChange,
+  title,
+}) => {
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="flex justify-between items-center bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-gray-800">Panel de Control</h1>
-
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 text-white px-4 py-2 rounded-md font-semibold hover:bg-red-700 transition"
-        >
-          Cerrar Sesión
-        </button>
-      </div>
-
-      <div className="mt-10">
-        <p className="text-gray-600">Bienvenido, {user.email}</p>
-        {/* Aquí irá tu CRUD de Negocios próximamente */}
-      </div>
-
+    <div>
+      {" "}
       <form
         className="max-w-5xl mx-auto space-y-6"
         onSubmit={(e) => handleSubmit(e, form)}
@@ -118,6 +43,7 @@ const Admin = () => {
                 value={form.ciudad}
                 onChange={changed}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 bg-gray-50"
+                required
               ></input>
             </div>
             <div>
@@ -129,6 +55,7 @@ const Admin = () => {
                 value={form.barrio}
                 onChange={changed}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 bg-gray-50"
+                required
               />
             </div>
             <div className="md:col-span-1">
@@ -140,6 +67,7 @@ const Admin = () => {
                 value={form.direccion}
                 onChange={changed}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 bg-gray-50"
+                required
               />
             </div>
             <div>
@@ -149,8 +77,11 @@ const Admin = () => {
               <input
                 name="emailEmpresa"
                 value={form.emailEmpresa}
+                type="email"
+                placeholder="email@empresa.com"
                 onChange={changed}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 bg-gray-50"
+                required
               />
             </div>
             <div>
@@ -182,6 +113,7 @@ const Admin = () => {
                 value={form.duenoNombre}
                 onChange={changed}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
+                required
               />
             </div>
             <div>
@@ -194,6 +126,7 @@ const Admin = () => {
                 value={form.duenoCel}
                 onChange={changed}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
+                required
               />
             </div>
             <div>
@@ -269,13 +202,22 @@ const Admin = () => {
               <label className="block text-sm font-medium text-gray-700">
                 Costo del Servicio ($)
               </label>
-              <input
-                name="costoServicio"
-                type="number"
-                value={form.costoServicio}
-                onChange={changed}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-2 text-gray-500">$</span>
+                <input
+                  type="number"
+                  name="costoServicio"
+                  value={form.costoServicio}
+                  onChange={changed}
+                  className="pl-7 mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
+                />
+                <p className="text-xs text-indigo-500 mt-1 font-semibold">
+                  {new Intl.NumberFormat("es-AR", {
+                    style: "currency",
+                    currency: "ARS",
+                  }).format(form.costoServicio || 0)}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -302,10 +244,38 @@ const Admin = () => {
               value={form.descripcionCorta}
               onChange={changed}
               rows="3"
-              placeholder="Ej: Aca guardamos informacion adcional de nuestros clientes"
+              placeholder="Ej: Aca guardamos información adicional de nuestros clientes"
               className="mt-1 block w-full rounded-md border-2 border-gray-300 shadow-sm p-2 bg-white focus:border-indigo-500 focus:ring-indigo-500 resize-none outline-none transition-colors"
             />
           </div>
+        </div>
+
+        {/* PRODUCTO A SORTEAR */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Producto a Sortear
+          </label>
+          <input
+            name="productoSorteo"
+            value={form.productoSorteo}
+            onChange={changed}
+            placeholder="Ej: Una Pizza Grande"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
+          />
+        </div>
+
+        {/* FECHA DEL SORTEO */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Fecha del Sorteo
+          </label>
+          <input
+            type="date"
+            name="fechaSorteo"
+            value={form.fechaSorteo}
+            onChange={changed}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
+          />
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -339,11 +309,13 @@ const Admin = () => {
           type="submit"
           className="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-indigo-700 transition-all transform active:scale-95"
         >
-          GUARDAR NUEVA EMPRESA
+          {title === "Crear Company"
+            ? "Guardar Nueva Empresa"
+            : "Actualizar Información de la Empresa"}
         </button>
       </form>
     </div>
   );
 };
 
-export default Admin;
+export default CompanyForm;
