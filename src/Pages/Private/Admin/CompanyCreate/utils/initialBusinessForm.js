@@ -18,4 +18,5 @@ export const initialBusinessForm = {
   logoUrl: "",
   productoSorteo: "",
   fechaSorteo: "",
+  vigenciaContrato: "",
 };

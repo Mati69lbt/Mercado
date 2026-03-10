@@ -1,4 +1,4 @@
-// cspell: ignore duenoCel duenoNombre encargadoCel encargadoNombre cuit costoServicio productoSorteo fechaSorteo CUIL Informacion  categoria  descripcionCorta direccion panaderiaelsol 
+// cspell: ignore duenoCel duenoNombre encargadoCel encargadoNombre cuit costoServicio productoSorteo fechaSorteo CUIL Informacion  categoria  descripcionCorta direccion panaderiaelsol
 
 const CompanyForm = ({
   form,
@@ -219,6 +219,44 @@ const CompanyForm = ({
                 </p>
               </div>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Vigencia del Contrato
+              </label>
+              <input
+                type="date"
+                name="vigenciaContrato"
+                value={form.vigenciaContrato}
+                onChange={changed}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Producto a Sortear
+              </label>
+              <input
+                name="productoSorteo"
+                value={form.productoSorteo}
+                onChange={changed}
+                placeholder="Ej: Una Pizza Grande"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
+              />
+            </div>
+
+            {/* FECHA DEL SORTEO */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Fecha del Sorteo
+              </label>
+              <input
+                type="date"
+                name="fechaSorteo"
+                value={form.fechaSorteo}
+                onChange={changed}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
+              />
+            </div>
           </div>
 
           {/* CHECKBOXES */}
@@ -251,32 +289,6 @@ const CompanyForm = ({
         </div>
 
         {/* PRODUCTO A SORTEAR */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Producto a Sortear
-          </label>
-          <input
-            name="productoSorteo"
-            value={form.productoSorteo}
-            onChange={changed}
-            placeholder="Ej: Una Pizza Grande"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
-          />
-        </div>
-
-        {/* FECHA DEL SORTEO */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Fecha del Sorteo
-          </label>
-          <input
-            type="date"
-            name="fechaSorteo"
-            value={form.fechaSorteo}
-            onChange={changed}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50"
-          />
-        </div>
 
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h2 className="text-lg font-semibold mb-4 text-indigo-600 border-b pb-2">

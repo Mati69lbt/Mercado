@@ -2,9 +2,7 @@ import { signOut } from "firebase/auth";
 import { Confirm, Loading } from "notiflix";
 import { auth } from "../../../../../Firebase/config";
 
-
 // cspell: ignore cuit duenoCel duenoNombre encargadoCel encargadoNombre estaActiva descripcionCorta basico  categoria direccion
-
 
 export const handleLogout = () => {
   Confirm.show(
@@ -35,4 +33,16 @@ export const handleLogout = () => {
       borderRadius: "12px",
     },
   );
+};
+
+// Formateador de moneda para el costo de servicio
+export const formatCurrency = (amount) => {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+  }).format(amount || 0);
+};
+
+export const togglePass = (id, setShowPass) => {
+  setShowPass((prev) => ({ ...prev, [id]: !prev[id] }));
 };
