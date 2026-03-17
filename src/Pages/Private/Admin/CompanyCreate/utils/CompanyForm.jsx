@@ -9,6 +9,8 @@ const CompanyForm = ({
   handleFileChange,
   title,
 }) => {
+ 
+
   return (
     <div>
       {" "}
@@ -296,24 +298,40 @@ const CompanyForm = ({
           </h2>
           <div className="flex items-center gap-4">
             <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50">
+              {/* PRIORIDAD 1: Mostrar el nuevo archivo seleccionado localmente */}
               {logoFile ? (
                 <img
                   src={URL.createObjectURL(logoFile)}
-                  alt="Preview"
+                  alt="Preview Nueva"
+                  className="w-full h-full object-cover"
+                />
+              ) : /* PRIORIDAD 2: Si no hay archivo nuevo, mostrar la URL que ya existe en el form */
+              form.logoUrl ? (
+                <img
+                  src={form.logoUrl}
+                  alt="Logo Actual"
                   className="w-full h-full object-cover"
                 />
               ) : (
+                /* PRIORIDAD 3: Placeholder si es una empresa nueva sin logo */
                 <span className="text-gray-400 text-xs text-center p-2">
                   Sin Logo
                 </span>
               )}
             </div>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-            />
+            <div className="flex flex-col gap-2">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+              />
+              {form.logoUrl && !logoFile && (
+                <p className="text-[10px] text-gray-400 italic">
+                  * Mostrando logo actual almacenado.
+                </p>
+              )}
+            </div>
           </div>
         </div>
 

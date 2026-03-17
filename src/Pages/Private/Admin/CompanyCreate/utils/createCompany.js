@@ -1,8 +1,13 @@
 // cspell: ignore firestore Revisá notiflix
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "../../../../../Firebase/config";
 import { Loading, Notify } from "notiflix";
-
 
 const urlCloudinary = import.meta.env.VITE_CLOUDINARY_URL;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -20,41 +25,55 @@ export const handleSubmit = async (e, form, logoFile) => {
   }
 
   try {
-    Loading.standard("Registrando nueva empresa...");
+    const isEditing = !!form.id;
+    Loading.standard(
+      isEditing ? "Actualizando empresa..." : "Registrando nueva empresa...",
+    );
 
-    let urlFinal = "";
+    let urlFinal = form.logoUrl || "";
 
     if (logoFile) {
       const data = new FormData();
       data.append("file", logoFile);
-      data.append("upload_preset", uploadPreset); 
-      data.append("cloud_name", cloudName); 
+      data.append("upload_preset", uploadPreset);
+      data.append("cloud_name", cloudName);
 
-      const response = await fetch(
-        urlCloudinary,
-        { method: "POST", body: data },
-      );
+      const response = await fetch(urlCloudinary, {
+        method: "POST",
+        body: data,
+      });
       const fileData = await response.json();
-      urlFinal = fileData.secure_url; 
-
-      Notify.success("¡Logo cargado correctamente en la nube!");
+      urlFinal = fileData.secure_url;
     }
 
     // 2. Referencia a la colección 'negocios'
-    const docRef = await addDoc(collection(db, "empresas"), {
-      ...form,
-      // Convertimos el costo a número por las dudas
+    const { id, ...dataToSave } = form;
+    const finalData = {
+      ...dataToSave,
       costoServicio: Number(form.costoServicio),
       logoUrl: urlFinal,
-      fechaAlta: serverTimestamp(), // Marca de tiempo del servidor
-    });
+      ultimaModificacion: serverTimestamp(),
+    };
 
-    Notify.success(`Empresa creada con ID: ${docRef.id}`);
+    if (isEditing) {
+      // ACTUALIZAR: Usamos la referencia al documento existente
+      const docRef = doc(db, "empresas", id);
+      await updateDoc(docRef, finalData);
+      Notify.success("Empresa actualizada correctamente");
+    } else {
+      // CREAR: Usamos addDoc como antes
+      await addDoc(collection(db, "empresas"), {
+        ...finalData,
+        fechaAlta: serverTimestamp(),
+      });
+      Notify.success("Empresa creada correctamente");
+    }
+
     window.location.reload();
 
-   setTimeout(() => {
-     window.history.back();
-   }, 1000);
+    setTimeout(() => {
+      window.history.back();
+    }, 1000);
   } catch (error) {
     console.error("Error al guardar en Firebase:", error);
     Notify.failure("Error de base de datos. Revisá las reglas de Firestore.");

@@ -33,6 +33,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/editCompany"
+          element={
+            <ProtectedRoute>
+              <CreateCompany />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

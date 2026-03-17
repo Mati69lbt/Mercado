@@ -1,15 +1,20 @@
 // cspell: ignore CUIT categoria cuit direccion barrio ciudad duenoNombre duenoCel encargadoNombre encargadoCel productoSorteo fechaSorteo costoServicio usuarioEmpresa passwordEmpresa estaActiva fechaAlta vigencia togglePass formatCurrency anio mes dia diasRestantes fechaVigencia setShowPass showPass expandedRows setExpandedRows toggleRow
 import React, { useState } from "react";
 import { formatCurrency, togglePass } from "./configCompany";
+import { handleDeleteCompany } from "./deleteCompany";
 
-const PcDoubleRowTable = ({ list }) => {
+
+const PcDoubleRowTable = ({ list, onEdit }) => {
   const companies = list || [];
   const [showPass, setShowPass] = useState({});
   const [expandedRows, setExpandedRows] = useState({});
+
+
+
   const toggleRow = (id) => {
     setExpandedRows((prev) => ({
       ...prev,
-      [id]: !prev[id], // Invierte el estado de esa fila específica
+      [id]: !prev[id],
     }));
   };
 
@@ -42,14 +47,14 @@ const PcDoubleRowTable = ({ list }) => {
                   </div>
                 </td>
                 {/* Col 3 y 4: CUIT */}
-                <td className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-50/30 w-[10%]">
+                <td className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-50/30 w-[10%] text-right">
                   CUIT:
                 </td>
                 <td className="px-4 py-3 w-[15%] font-medium ">
                   {empresa.cuit}
                 </td>
                 {/* Col 5 y 6: Email */}
-                <td className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-50/30 w-[8%]">
+                <td className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-50/30 w-[8%] text-right">
                   Email:
                 </td>
                 <td className="px-4 py-3 w-[30%] font-medium">
@@ -63,7 +68,7 @@ const PcDoubleRowTable = ({ list }) => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleRow(empresa.id);
+                        toggleRow(empresa);
                       }}
                       className={`shrink-0 p-1.5 rounded-lg bg-gray-50 text-indigo-500 hover:bg-indigo-50 transition-all duration-300 ${
                         expandedRows[empresa.id]
@@ -102,7 +107,7 @@ const PcDoubleRowTable = ({ list }) => {
                         ? empresa.categoria
                         : "Sin Especificar"}
                     </td>
-                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[12px] bg-gray-50/30 leading-relaxed">
+                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[12px] bg-gray-50/30 leading-relaxed text-right">
                       Dirección:
                       <br />
                       Barrio:
@@ -113,7 +118,7 @@ const PcDoubleRowTable = ({ list }) => {
                         {empresa.barrio}, {empresa.ciudad}
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[12px] bg-gray-50/30 leading-relaxed">
+                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[12px] bg-gray-50/30 leading-relaxed text-right">
                       Dueño:
                       <br />
                       Encargado:
@@ -154,7 +159,7 @@ const PcDoubleRowTable = ({ list }) => {
                     <td className="px-4 py-3 font-bold text-indigo-600 italic">
                       {empresa.productoSorteo}
                     </td>
-                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-50/30">
+                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-50/30 text-right">
                       Fecha del sorteo:
                     </td>
                     <td className="px-4 py-3 font-medium">
@@ -162,7 +167,7 @@ const PcDoubleRowTable = ({ list }) => {
                         ? empresa.fechaSorteo.split("-").reverse().join("-")
                         : "Sin fecha"}
                     </td>
-                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-50/30">
+                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-50/30 text-right">
                       Costo:
                     </td>
                     <td className="px-4 py-3 font-black text-green-600">
@@ -171,7 +176,7 @@ const PcDoubleRowTable = ({ list }) => {
                   </tr>
 
                   {/* --- BLOQUE FILA 4: Accesos y Acciones --- */}
-                  <tr className="bg-white text-sm border-t border-gray-50">
+                  <tr className="bg-white text-sm border-t border-gray-600 border-b-8 ">
                     <td className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-100/30">
                       Usuario: <br />
                       Pass:
@@ -190,9 +195,9 @@ const PcDoubleRowTable = ({ list }) => {
                         </button>
                       </div>
                     </td>
-                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[12px] bg-gray-100/30">
+                    <td className="px-4 py-3 font-black text-gray-400 uppercase text-[11px] bg-gray-100/30 text-right">
                       Estado: <br />
-                      Vigencia:
+                      Vigencia hasta:
                     </td>
                     <td className="px-4 py-3 font-medium leading-relaxed">
                       <div className="flex items-center gap-2">
@@ -209,29 +214,42 @@ const PcDoubleRowTable = ({ list }) => {
 
                       <div
                         className={`text-[11px] font-bold ${(() => {
-                          if (!empresa.vigencia) return "text-gray-400";
-                          const [dia, mes, anio] = empresa.vigencia
-                            .split("/")
+                          // 1. Validar que exista el dato correcto
+                          if (!empresa.vigenciaContrato) return "text-gray-400";
+
+                          // 2. IMPORTANTE: El split debe ser por "-"
+                          // Como viene YYYY-MM-DD, el orden es [año, mes, día]
+                          const [anio, mes, dia] = empresa.vigenciaContrato
+                            .split("-")
                             .map(Number);
+
+                          // 3. Crear el objeto de fecha (el mes en JS va de 0 a 11, por eso mes - 1)
                           const fechaVigencia = new Date(anio, mes - 1, dia);
+                          const hoy = new Date();
+
+                          // 4. Calcular diferencia en días
+                          const diferenciaMilisegundos = fechaVigencia - hoy;
                           const diasRestantes = Math.ceil(
-                            (fechaVigencia - new Date()) /
-                              (1000 * 60 * 60 * 24),
+                            diferenciaMilisegundos / (1000 * 60 * 60 * 24),
                           );
+
                           return diasRestantes <= 15
                             ? "text-red-500"
                             : "text-green-500";
                         })()}`}
                       >
                         {empresa.estaActiva
-                          ? empresa.vigencia
-                            ? empresa.vigencia.split("-").reverse().join("-")
+                          ? empresa.vigenciaContrato
+                            ? empresa.vigenciaContrato
+                                .split("-")
+                                .reverse()
+                                .join("-") // Muestra "29-06-2026"
                             : "Sin especificar vigencia"
                           : "Requiere Activación"}
                       </div>
                     </td>
                     <td
-                      className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-100/30"
+                      className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-100/30 text-right"
                       colSpan="1"
                     >
                       Acciones:
@@ -242,6 +260,10 @@ const PcDoubleRowTable = ({ list }) => {
                         <button
                           className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Editar"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(empresa, { title: "Editar" });
+                          }}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -262,6 +284,13 @@ const PcDoubleRowTable = ({ list }) => {
                         <button
                           className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"
                           title="Eliminar"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteCompany(
+                              empresa.id,
+                              empresa.nombreComercio,
+                            );
+                          }}
                         >
                           <svg
                             xmlns="http://www.w3.org/2000/svg"

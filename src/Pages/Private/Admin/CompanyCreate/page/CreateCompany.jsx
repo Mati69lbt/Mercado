@@ -1,14 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useForm from "../../../../../hooks/useForm";
 import { initialBusinessForm } from "../utils/initialBusinessForm";
 import CompanyForm from "../utils/CompanyForm";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { handleSubmit } from "../utils/createCompany";
 
 const CreateCompany = () => {
   const { form, changed, setValue } = useForm(initialBusinessForm);
   const [logoFile, setLogoFile] = useState(null);
+  const location = useLocation();
   const navigate = useNavigate();
+
+  const empresaAEditar = location.state?.empresa;
+
+  const nombreEmpresa = empresaAEditar.nombreComercio;
+  const id = empresaAEditar.id;
 
   const handleFileChange = (e) => {
     if (e.target.files[0]) setLogoFile(e.target.files[0]);
@@ -19,17 +25,36 @@ const CreateCompany = () => {
     handleSubmit(e, form, logoFile);
   };
 
+  useEffect(() => {
+    if (empresaAEditar) {
+      Object.entries(empresaAEditar).forEach(([key, value]) => {
+        setValue(key, value);
+      });
+    }
+  }, [empresaAEditar]);
+
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       {/* --- ENCABEZADO CON TÍTULO Y BOTÓN VOLVER --- */}
       <div className="max-w-5xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
+        <div className="text-center">
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
-            Gestión de <span className="text-indigo-600">Empresas</span>
+            {empresaAEditar ? "Actualización de" : "Gestión de"}{" "}
+            <span className="text-indigo-600">Empresas</span>
           </h1>
-          <p className="text-gray-500 mt-1">
-            Registrá un nuevo cliente en la red de Mercado argentina
-          </p>
+
+          {/* Ajuste en el párrafo descriptivo */}
+          <div className="text-gray-500 mt-1 flex justify-center gap-1 italic">
+            {empresaAEditar ? (
+              <>
+                <span>Actualizando los datos de:</span>
+                <span className="text-red-600 font-bold">{nombreEmpresa}</span>
+                (ID: {id})
+              </>
+            ) : (
+              "Registrá un nuevo cliente en la red de Mercado argentina"
+            )}
+          </div>
         </div>
 
         <button
@@ -57,7 +82,7 @@ const CreateCompany = () => {
       {/* --- FORMULARIO --- */}
       <div className="bg-white rounded-2xl shadow-xl p-2 md:p-6 border border-gray-100">
         <CompanyForm
-          title={"Crear Company"}
+          title={empresaAEditar ? "Editar Company" : "Crear Company"}
           form={form}
           changed={changed}
           setValue={setValue}

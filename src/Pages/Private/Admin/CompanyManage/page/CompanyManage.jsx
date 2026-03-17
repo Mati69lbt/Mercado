@@ -2,28 +2,47 @@ import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../../../../Firebase/config";
 import { handleLogout } from "../utils/configCompany";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { subscribeToCompanies } from "../utils/getCompanies";
 import PcDoubleRowTable from "../utils/PcDoubleRowTable";
 import MobileCardList from "../utils/MobileCardList";
+import { Loading } from "notiflix";
 
 const CompanyManage = () => {
   const [user] = useAuthState(auth);
   const [companies, setCompanies] = useState([]);
-  const [showPass, setShowPass] = useState({});
-  console.log("Empresas traídas de Firebase:", companies);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleEdit = (empresa) => {
+    navigate("/admin/editCompany", { state: { empresa } });
+  };
 
   useEffect(() => {
-    // Nos suscribimos a los cambios
-    const unsubscribe = subscribeToCompanies(setCompanies);
-    // Limpiamos la conexión cuando nos vamos de la página
-    return () => unsubscribe();
+    // 1. Iniciamos el loading apenas monta el componente
+    Loading.standard("Cargando base de datos...");
+
+    const unsubscribe = subscribeToCompanies((data) => {
+      setCompanies(data);
+
+      // 2. Cuando recibimos datos (aunque sea un array vacío), quitamos el loading
+      setIsLoading(false);
+      Loading.remove();
+    });
+
+    // Limpieza al desmontar
+    return () => {
+      unsubscribe();
+      Loading.remove();
+    };
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       {/* Header */}
-      <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 md:mb-8 gap-4">
+      <div className="max-w-400 mx-auto flex flex-col md:flex-row justify-between items-center bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 md:mb-8 gap-4">
         {/* Sección de Título e Info */}
         <div className="text-center md:text-left">
           <h1 className="text-2xl font-black text-gray-800 tracking-tight">
@@ -34,7 +53,7 @@ const CompanyManage = () => {
               Gestión Integral de Empresas
             </p>
             <span className="hidden md:inline text-gray-300">|</span>
-            <p className="text-[10px] md:text-xs text-indigo-400 font-bold italic truncate max-w-[200px] md:max-w-none">
+            <p className="text-[10px] md:text-xs text-indigo-400 font-bold italic truncate max-w-50 md:max-w-none">
               {user?.email}
             </p>
           </div>
@@ -57,10 +76,20 @@ const CompanyManage = () => {
         </div>
       </div>
 
-      <div className="max-w-[1600px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <PcDoubleRowTable list={companies} />
-        <MobileCardList list={companies} />
-      </div>
+      {companies.length === 0 && !isLoading ? (
+        // Caso A: No hay empresas
+        <div className="max-w-400 mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+          <p className="text-gray-500 text-lg font-medium">
+            No hay empresas registradas.
+          </p>
+        </div>
+      ) : (
+        // Caso B: Sí hay empresas (o está cargando)
+        <div className="max-w-400 mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <PcDoubleRowTable list={companies} onEdit={handleEdit} />
+          <MobileCardList list={companies} onEdit={handleEdit} />
+        </div>
+      )}
     </div>
   );
 };

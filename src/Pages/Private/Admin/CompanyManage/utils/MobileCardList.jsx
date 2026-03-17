@@ -1,9 +1,10 @@
 // cspell: ignore CUIT categoria cuit direccion barrio ciudad duenoNombre duenoCel encargadoNombre encargadoCel productoSorteo fechaSorteo costoServicio usuarioEmpresa passwordEmpresa estaActiva fechaAlta vigenciaContrato anio mes dia fechaVigencia hoy diasRestantes
 import React, { useState } from "react";
 import { formatCurrency, togglePass } from "./configCompany";
+import { handleDeleteCompany } from "./deleteCompany";
 
-const MobileCardList = (list) => {
-  const companies = list.list || [];
+const MobileCardList = ({ list, onEdit }) => {
+  const companies = list || [];
   const [showPass, setShowPass] = useState({});
   const [expandedRows, setExpandedRows] = useState({});
 
@@ -39,14 +40,10 @@ const MobileCardList = (list) => {
               <p className="font-black text-indigo-600 text-sm uppercase leading-tight">
                 {empresa.nombreComercio}
               </p>
-              <div className="flex items-center justify-center gap-2 mt-0.5">
+              <div className="flex flex-col items-center justify-center  mt-0.5">
                 <p className="text-[12px] text-gray-400 font-bold uppercase tracking-tighter shrink-0">
                   CUIT: {empresa.cuit}
                 </p>
-
-                {/* Separador visual (un puntito o barra) */}
-                <span className="text-gray-300 text-[8px]">•</span>
-
                 <p className="text-[12px] text-indigo-400 font-medium lowercase  max-w-[30]">
                   {empresa.emailEmpresa}
                 </p>
@@ -79,7 +76,7 @@ const MobileCardList = (list) => {
           </div>
 
           {expandedRows[empresa.id] && (
-            <div className="px-5 pb-5 space-y-3 animate-fadeIn">
+            <div className="px-5 pb-5 space-y-3 animate-fadeIn border-b-2 border-gray-800">
               <div className="flex justify-between text-xs pt-2 border-t border-gray-50">
                 <span className="text-gray-400 font-bold uppercase">
                   Categoría
@@ -163,25 +160,23 @@ const MobileCardList = (list) => {
               </div>
 
               <div className="flex justify-between items-center pt-2">
-                <div className="flex flex-col">
-                  <p>
-                    Estado:{" "}
-                    <span
-                      className={`text-[12px] font-black uppercase ${empresa.estaActiva ? "text-green-500" : "text-red-400"}`}
-                    >
-                      {empresa.estaActiva ? "ACTIVA" : "INACTIVA"}
-                    </span>
-                  </p>
-                  <span className="text-[10px] text-gray-400">
+                <div className="flex flex-col border p-2 rounded-lg bg-gray-50 text-center gap-1">
+                  <p className="text-sm">Estado: </p>
+                  <span
+                    className={`text-[14px] font-black uppercase ${empresa.estaActiva ? "text-green-500" : "text-red-400"}`}
+                  >
+                    {empresa.estaActiva ? "ACTIVA" : "INACTIVA"}
+                  </span>
+                  <span className="text-[12px] text-gray-400">
                     Alta: {empresa.fechaAlta?.toDate?.().toLocaleDateString()}
                   </span>
                 </div>
-                <div>
-                  <p className="text-[12px] text-gray-400 font-bold uppercase tracking-tighter">
+                <div className="border p-1 py-4 rounded-lg ">
+                  <p className="text-[12px] text-black-400 font-bold uppercase tracking-tighter underline">
                     Contrato Hasta:
                   </p>
                   <span
-                    className={`text-[11px] font-bold ${(() => {
+                    className={`block text-center text-[16px] font-bold ${(() => {
                       // 1. Usar la propiedad correcta: vigenciaContrato
                       if (!empresa.vigenciaContrato) return "text-gray-400";
 
@@ -215,10 +210,11 @@ const MobileCardList = (list) => {
                   </span>
                 </div>
 
-                <div className="flex justify-center gap-2">
+                <div className="flex justify-center gap-1">
                   <button
-                    className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="p-1 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                     title="Editar"
+                    onClick={() => onEdit(empresa, { title: "Editar" })}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -238,6 +234,11 @@ const MobileCardList = (list) => {
                   <button
                     className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"
                     title="Eliminar"
+                    onClick={(e) => {
+                      e.preventDefault(); // Evita cualquier acción por defecto
+                      e.stopPropagation(); // DETIENE la propagación al contenedor de la tarjeta
+                      handleDeleteCompany(empresa.id, empresa.nombreComercio);
+                    }}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
