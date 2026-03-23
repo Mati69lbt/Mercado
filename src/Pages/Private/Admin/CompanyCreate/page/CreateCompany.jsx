@@ -11,18 +11,27 @@ const CreateCompany = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const empresaAEditar = location.state?.empresa;
+  const empresaAEditar = location.state?.empresa || null;
 
-  const nombreEmpresa = empresaAEditar.nombreComercio;
-  const id = empresaAEditar.id;
+  const nombreEmpresa = empresaAEditar?.nombreComercio || "";
+  const id = empresaAEditar?.id || "";
 
   const handleFileChange = (e) => {
-    if (e.target.files[0]) setLogoFile(e.target.files[0]);
+    if (!e) {
+      setLogoFile(null);
+      setValue("logoUrl", "");
+      return;
+    }
+    const file = e.target.files[0];
+    if (file) {
+      setLogoFile(file);
+      setValue("logoUrl", "");
+    }
   };
 
   const onSubmit = (e) => {
     // Llamamos a la lógica externa pasándole el logo
-    handleSubmit(e, form, logoFile);
+    handleSubmit(e, form, logoFile, navigate);
   };
 
   useEffect(() => {
@@ -44,15 +53,19 @@ const CreateCompany = () => {
           </h1>
 
           {/* Ajuste en el párrafo descriptivo */}
-          <div className="text-gray-500 mt-1 flex justify-center gap-1 italic">
+          <div className="text-gray-500 mt-1 flex flex-col md:flex-row justify-center items-center gap-1 italic text-center">
             {empresaAEditar ? (
               <>
                 <span>Actualizando los datos de:</span>
-                <span className="text-red-600 font-bold">{nombreEmpresa}</span>
-                (ID: {id})
+                <span className="text-red-600 font-bold wrap-break-word">
+                  {nombreEmpresa}{" "}
+                </span>
+                <span> (ID: {id})</span>
               </>
             ) : (
-              "Registrá un nuevo cliente en la red de Mercado argentina"
+              <span>
+                Registrá un nuevo cliente en la red de Mercado argentina
+              </span>
             )}
           </div>
         </div>

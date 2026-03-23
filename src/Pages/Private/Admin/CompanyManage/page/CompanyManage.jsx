@@ -11,8 +11,6 @@ import { Loading } from "notiflix";
 const CompanyManage = () => {
   const [user] = useAuthState(auth);
   const [companies, setCompanies] = useState([]);
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,20 +19,14 @@ const CompanyManage = () => {
   };
 
   useEffect(() => {
-    // 1. Iniciamos el loading apenas monta el componente
     Loading.standard("Cargando base de datos...");
-
     const unsubscribe = subscribeToCompanies((data) => {
-      setCompanies(data);
-
-      // 2. Cuando recibimos datos (aunque sea un array vacío), quitamos el loading
+      setCompanies(data || []);
       setIsLoading(false);
       Loading.remove();
     });
-
-    // Limpieza al desmontar
     return () => {
-      unsubscribe();
+      if (unsubscribe) unsubscribe();
       Loading.remove();
     };
   }, []);
@@ -45,9 +37,11 @@ const CompanyManage = () => {
       <div className="max-w-400 mx-auto flex flex-col md:flex-row justify-between items-center bg-white p-4 md:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 md:mb-8 gap-4">
         {/* Sección de Título e Info */}
         <div className="text-center md:text-left">
-          <h1 className="text-2xl font-black text-gray-800 tracking-tight">
-            MARG <span className="text-indigo-600">Admin</span>
-          </h1>
+          <Link to="/parana">
+            <h1 className="text-2xl font-black text-gray-800 tracking-tight">
+              MARG <span className="text-indigo-600">Admin</span>
+            </h1>
+          </Link>
           <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
             <p className="text-xs md:text-sm text-gray-500 font-medium">
               Gestión Integral de Empresas
@@ -76,20 +70,19 @@ const CompanyManage = () => {
         </div>
       </div>
 
-      {companies.length === 0 && !isLoading ? (
-        // Caso A: No hay empresas
-        <div className="max-w-400 mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
-          <p className="text-gray-500 text-lg font-medium">
-            No hay empresas registradas.
-          </p>
-        </div>
-      ) : (
-        // Caso B: Sí hay empresas (o está cargando)
-        <div className="max-w-400 mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <PcDoubleRowTable list={companies} onEdit={handleEdit} />
-          <MobileCardList list={companies} onEdit={handleEdit} />
-        </div>
-      )}
+      {!isLoading &&
+        (companies.length === 0 ? (
+          <div className="max-w-400 mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 text-center">
+            <p className="text-gray-500 text-lg font-medium">
+              No hay empresas registradas.
+            </p>
+          </div>
+        ) : (
+          <div className="max-w-400 mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <PcDoubleRowTable list={companies} onEdit={handleEdit} />
+            <MobileCardList list={companies} onEdit={handleEdit} />
+          </div>
+        ))}
     </div>
   );
 };

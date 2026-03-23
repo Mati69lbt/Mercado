@@ -3,9 +3,6 @@ import { Confirm, Notify, Loading } from "notiflix";
 import { db } from "../../../../../Firebase/config";
 
 export const handleDeleteCompany = (id, nombre) => {
-  console.log("id", id);
-  console.log("nombre", nombre);
-
   Confirm.show(
     "Confirmar Eliminación",
     `¿Estás seguro de que deseas eliminar a ${nombre}?`,

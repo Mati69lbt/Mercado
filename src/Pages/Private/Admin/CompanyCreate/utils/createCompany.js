@@ -13,7 +13,7 @@ const urlCloudinary = import.meta.env.VITE_CLOUDINARY_URL;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-export const handleSubmit = async (e, form, logoFile) => {
+export const handleSubmit = async (e, form, logoFile, navigate) => {
   e.preventDefault();
 
   // 1. Validar campos críticos antes de mandar
@@ -60,6 +60,7 @@ export const handleSubmit = async (e, form, logoFile) => {
       const docRef = doc(db, "empresas", id);
       await updateDoc(docRef, finalData);
       Notify.success("Empresa actualizada correctamente");
+      navigate("/admin");
     } else {
       // CREAR: Usamos addDoc como antes
       await addDoc(collection(db, "empresas"), {
@@ -67,13 +68,8 @@ export const handleSubmit = async (e, form, logoFile) => {
         fechaAlta: serverTimestamp(),
       });
       Notify.success("Empresa creada correctamente");
+      navigate("/admin");
     }
-
-    window.location.reload();
-
-    setTimeout(() => {
-      window.history.back();
-    }, 1000);
   } catch (error) {
     console.error("Error al guardar en Firebase:", error);
     Notify.failure("Error de base de datos. Revisá las reglas de Firestore.");

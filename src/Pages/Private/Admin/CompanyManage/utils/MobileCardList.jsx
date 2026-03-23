@@ -7,6 +7,15 @@ const MobileCardList = ({ list, onEdit }) => {
   const companies = list || [];
   const [showPass, setShowPass] = useState({});
   const [expandedRows, setExpandedRows] = useState({});
+  const [searchCompany, setSearchCompany] = useState("");
+
+  const companiesSorted = [...companies].sort((a, b) =>
+    (a.nombreComercio || "")
+      .trim()
+      .localeCompare((b.nombreComercio || "").trim(), "es", {
+        sensitivity: "base",
+      }),
+  );
 
   const toggleRow = (id) => {
     setExpandedRows((prev) => ({
@@ -14,9 +23,76 @@ const MobileCardList = ({ list, onEdit }) => {
       [id]: !prev[id],
     }));
   };
+
+  const filteredCompanies = companiesSorted.filter((empresa) =>
+    (empresa.nombreComercio || "")
+      .toLowerCase()
+      .includes(searchCompany.toLowerCase().trim()),
+  );
+
   return (
     <div className="block md:hidden space-y-4">
-      {companies.map((empresa) => (
+      <div className="mb-4 px-2">
+        <div className="relative max-w-md">
+          <input
+            type="text"
+            value={searchCompany}
+            onChange={(e) => setSearchCompany(e.target.value)}
+            placeholder="Buscar empresa por nombre..."
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 pr-16 text-sm text-gray-700 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+          />
+
+          {searchCompany.trim() !== "" && (
+            <button
+              type="button"
+              onClick={() => setSearchCompany("")}
+              className="absolute inset-y-0 right-9 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+              title="Limpiar búsqueda"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
+
+          <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="m21 21-4.35-4.35m1.85-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+      {filteredCompanies.length === 0 && searchCompany.trim() !== "" && (
+        <div className="px-2 pb-3">
+          <p className="text-sm text-gray-500 italic">
+            No se encontraron empresas con ese nombre.
+          </p>
+        </div>
+      )}
+
+      {filteredCompanies.map((empresa) => (
         <div
           key={empresa.id}
           className="bg-white rounded-2xl p-2 shadow-sm border border-gray-100 space-y-1"
@@ -42,10 +118,22 @@ const MobileCardList = ({ list, onEdit }) => {
               </p>
               <div className="flex flex-col items-center justify-center  mt-0.5">
                 <p className="text-[12px] text-gray-400 font-bold uppercase tracking-tighter shrink-0">
-                  CUIT: {empresa.cuit}
+                  CUIT:{" "}
+                  {empresa.cuit ? (
+                    empresa.cuit
+                  ) : (
+                    <span className="text-red-600 font-semibold italic">
+                      a completar
+                    </span>
+                  )}
                 </p>
                 <p className="text-[12px] text-indigo-400 font-medium lowercase  max-w-[30]">
                   {empresa.emailEmpresa}
+                </p>
+                <p className="text-[11px] text-gray-800 font-bold uppercase tracking-tighter shrink-0">
+                  Ultima Actualización:{" "}
+                  {empresa.ultimaModificacion?.toDate()?.toLocaleDateString() ||
+                    "-"}
                 </p>
               </div>
             </div>
@@ -168,7 +256,10 @@ const MobileCardList = ({ list, onEdit }) => {
                     {empresa.estaActiva ? "ACTIVA" : "INACTIVA"}
                   </span>
                   <span className="text-[12px] text-gray-400">
-                    Alta: {empresa.fechaAlta?.toDate?.().toLocaleDateString()}
+                    <span className="text-[11px] text-gray-400 italic">
+                      (Alta:{" "}
+                      {empresa.fechaAlta?.toDate?.().toLocaleDateString()})
+                    </span>
                   </span>
                 </div>
                 <div className="border p-1 py-4 rounded-lg ">

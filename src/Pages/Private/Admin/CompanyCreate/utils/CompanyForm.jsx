@@ -1,5 +1,8 @@
 // cspell: ignore duenoCel duenoNombre encargadoCel encargadoNombre cuit costoServicio productoSorteo fechaSorteo CUIL Informacion  categoria  descripcionCorta direccion panaderiaelsol
 
+import { Confirm } from "notiflix";
+import { useNavigate } from "react-router-dom";
+
 const CompanyForm = ({
   form,
   changed,
@@ -9,14 +12,35 @@ const CompanyForm = ({
   handleFileChange,
   title,
 }) => {
- 
-
+  const navigate = useNavigate();
+  const deleteLogo = () => {
+    Confirm.show(
+      "Confirmar eliminación",
+      "¿Estás seguro de que quieres borrar el logo actual?",
+      "Sí, borrar",
+      "No, cancelar",
+      () => {
+        // Si el usuario confirma:
+        setValue("logoUrl", "");
+        handleFileChange(null);
+      },
+      () => {
+        // Si el usuario cancela, no hacemos nada
+      },
+      {
+        width: "320px",
+        borderRadius: "12px",
+        okButtonBackground: "#ef4444",
+        titleColor: "#4f46e5",
+      },
+    );
+  };
   return (
     <div>
       {" "}
       <form
         className="max-w-5xl mx-auto space-y-6"
-        onSubmit={(e) => handleSubmit(e, form)}
+        onSubmit={(e) => handleSubmit(e, form, navigate, logoFile)}
       >
         {/* SECCIÓN 1: DATOS DEL LOCAL */}
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -69,7 +93,6 @@ const CompanyForm = ({
                 value={form.direccion}
                 onChange={changed}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 bg-gray-50"
-                required
               />
             </div>
             <div>
@@ -83,7 +106,6 @@ const CompanyForm = ({
                 placeholder="email@empresa.com"
                 onChange={changed}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 bg-gray-50"
-                required
               />
             </div>
             <div>
@@ -296,39 +318,80 @@ const CompanyForm = ({
           <h2 className="text-lg font-semibold mb-4 text-indigo-600 border-b pb-2">
             4. Identidad Visual
           </h2>
-          <div className="flex items-center gap-4">
-            <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50">
-              {/* PRIORIDAD 1: Mostrar el nuevo archivo seleccionado localmente */}
+          <div className="grid grid-cols-2 gap-3 items-start md:flex md:items-center md:gap-4">
+            {/* CONTENEDOR DE PREVISUALIZACIÓN */}
+            <div className="relative group w-full aspect-square md:w-24 md:h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50">
+              {/* BOTÓN ELIMINAR (SVG ROJO) - Solo aparece si hay algo que borrar */}
+              {(logoFile || form.logoUrl) && (
+                <button
+                  type="button"
+                  onClick={deleteLogo}
+                  className="absolute top-1 right-1 z-10 bg-white/90 p-1 rounded-full shadow-md hover:bg-red-50 border border-red-200 transition-all active:scale-90"
+                  title="Eliminar imagen"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 text-red-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              )}
+
               {logoFile ? (
                 <img
                   src={URL.createObjectURL(logoFile)}
                   alt="Preview Nueva"
                   className="w-full h-full object-cover"
                 />
-              ) : /* PRIORIDAD 2: Si no hay archivo nuevo, mostrar la URL que ya existe en el form */
-              form.logoUrl ? (
+              ) : form.logoUrl ? (
                 <img
                   src={form.logoUrl}
                   alt="Logo Actual"
                   className="w-full h-full object-cover"
                 />
               ) : (
-                /* PRIORIDAD 3: Placeholder si es una empresa nueva sin logo */
                 <span className="text-gray-400 text-xs text-center p-2">
                   Sin Logo
                 </span>
               )}
             </div>
-            <div className="flex flex-col gap-2">
+
+            {/* INPUT Y TEXTOS */}
+            <div className="min-w-0 flex flex-col gap-2 justify-center">
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleFileChange}
-                className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                className="w-full text-sm text-gray-500
+         file:w-full md:file:w-auto
+         file:mr-0 md:file:mr-4
+         file:py-2 file:px-4
+         file:rounded-full file:border-0
+         file:text-sm file:font-semibold
+         file:bg-indigo-50 file:text-indigo-700
+         hover:file:bg-indigo-100 cursor-pointer"
               />
-              {form.logoUrl && !logoFile && (
-                <p className="text-[10px] text-gray-400 italic">
+
+              {logoFile ? (
+                <p className="text-[11px] text-gray-500 truncate">
+                  Archivo: {logoFile.name}
+                </p>
+              ) : form.logoUrl ? (
+                <p className="text-[10px] text-gray-400 italic truncate">
                   * Mostrando logo actual almacenado.
+                </p>
+              ) : (
+                <p className="text-[10px] text-gray-400 truncate">
+                  Ningún archivo seleccionado
                 </p>
               )}
             </div>

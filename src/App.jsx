@@ -6,6 +6,8 @@ import Auth from "./Pages/Private/Auth/page/Auth";
 import ProtectedRoute from "./hooks/ProtectedRoute";
 import CompanyManage from "./Pages/Private/Admin/CompanyManage/page/CompanyManage";
 import CreateCompany from "./Pages/Private/Admin/CompanyCreate/page/CreateCompany";
+import Index from "./Pages/Public/Empresas/page/Index";
+import MainLayout from "./Components/page/MainLayout";
 
 function App() {
   return (
@@ -13,7 +15,11 @@ function App() {
       <Routes>
         {/* --- RUTAS PÚBLICAS --- */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/:ciudadId" element={<Home />} />
+
+        <Route element={<MainLayout />}>
+          <Route path="/:ciudadId" element={<Home />} />
+          <Route path="/:ciudadId/empresas" element={<Index />} />
+        </Route>
 
         {/* --- RUTAS PRIVADAS (ADMIN) --- */}
         <Route path="/auth" element={<Auth />} />
