@@ -1,12 +1,14 @@
 import { Loading } from "notiflix";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { subscribeToCompanies } from "../../../Private/Admin/CompanyManage/utils/getCompanies";
 
 const Index = () => {
   const { ciudadId } = useParams();
   const [companies, setCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  console.log("companies", companies);
 
   useEffect(() => {
     Loading.standard("Cargando base de datos...");
@@ -37,23 +39,24 @@ const Index = () => {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           {companies.map((company) => (
-            <div
+            <Link
               key={company.id}
+              to={`/${ciudadId}/empresas/${company.id}`}
               className="flex flex-col items-center group cursor-pointer"
             >
               {/* Contenedor del Logo */}
               <div className="w-24 h-24 md:w-32 md:h-32 rounded-full border-2 border-gray-100 p-2 shadow-sm hover:shadow-md transition-shadow bg-white flex items-center justify-center overflow-hidden">
                 <img
                   src={company.logoUrl || "https://via.placeholder.com/150"}
-                  alt={company.name}
+                  alt={company.nombreComercio}
                   className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300"
                 />
               </div>
               {/* Nombre de la empresa */}
               <span className="mt-3 text-sm font-medium text-gray-700 text-center group-hover:text-green-600">
-                {company.name}
+                {company.nombreComercio}
               </span>
-            </div>
+            </Link>
           ))}
         </div>
       )}

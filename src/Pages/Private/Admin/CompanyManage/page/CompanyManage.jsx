@@ -7,6 +7,7 @@ import { subscribeToCompanies } from "../utils/getCompanies";
 import PcDoubleRowTable from "../utils/PcDoubleRowTable";
 import MobileCardList from "../utils/MobileCardList";
 import { Loading } from "notiflix";
+import { handleCrearAuth } from "../../CompanyCreate/utils/createUser";
 
 const CompanyManage = () => {
   const [user] = useAuthState(auth);
@@ -79,8 +80,16 @@ const CompanyManage = () => {
           </div>
         ) : (
           <div className="max-w-400 mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <PcDoubleRowTable list={companies} onEdit={handleEdit} />
-            <MobileCardList list={companies} onEdit={handleEdit} />
+            <PcDoubleRowTable
+              list={companies}
+              onEdit={handleEdit}
+              onCrearAuth={handleCrearAuth}
+            />
+            <MobileCardList
+              list={companies}
+              onEdit={handleEdit}
+              onCrearAuth={handleCrearAuth}
+            />
           </div>
         ))}
     </div>

@@ -8,6 +8,10 @@ import CompanyManage from "./Pages/Private/Admin/CompanyManage/page/CompanyManag
 import CreateCompany from "./Pages/Private/Admin/CompanyCreate/page/CreateCompany";
 import Index from "./Pages/Public/Empresas/page/Index";
 import MainLayout from "./Components/page/MainLayout";
+import EmpresaInfo from "./Pages/Public/Empresas/page/EmpresaInfo";
+import ProtectedRouteEmpresa from "./hooks/ProtectedRouteEmpresa";
+import EmpresaDashboard from "./Pages/Private/Admin/CompanyDashboard/page/EmpresaDashboard";
+import CreateServices from "./Pages/Private/Admin/CreateServices/Page/CreateServices";
 
 function App() {
   return (
@@ -19,6 +23,10 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/:ciudadId" element={<Home />} />
           <Route path="/:ciudadId/empresas" element={<Index />} />
+          <Route
+            path="/:ciudadId/empresas/:empresaId"
+            element={<EmpresaInfo />}
+          />
         </Route>
 
         {/* --- RUTAS PRIVADAS (ADMIN) --- */}
@@ -45,6 +53,23 @@ function App() {
             <ProtectedRoute>
               <CreateCompany />
             </ProtectedRoute>
+          }
+        />
+        {/* --- RUTAS PRIVADAS (EMPRESA) --- */}
+        <Route
+          path="/empresa/dashboard"
+          element={
+            <ProtectedRouteEmpresa>
+              <EmpresaDashboard />
+            </ProtectedRouteEmpresa>
+          }
+        />
+        <Route
+          path="/empresa/dashboard/nuevo-servicio"
+          element={
+            <ProtectedRouteEmpresa>
+              <CreateServices />
+            </ProtectedRouteEmpresa>
           }
         />
       </Routes>

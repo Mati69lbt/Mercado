@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { formatCurrency, togglePass } from "./configCompany";
 import { handleDeleteCompany } from "./deleteCompany";
 
-const MobileCardList = ({ list, onEdit }) => {
+const MobileCardList = ({ list, onEdit, onCrearAuth }) => {
   const companies = list || [];
   const [showPass, setShowPass] = useState({});
   const [expandedRows, setExpandedRows] = useState({});
@@ -223,28 +223,42 @@ const MobileCardList = ({ list, onEdit }) => {
                 <p>{formatCurrency(empresa.costoServicio)}</p>
               </div>
 
-              <div className="bg-gray-50 p-3 rounded-xl flex justify-between items-center border">
+              <div className="flex items-center gap-2">
                 <span className="text-[15px] font-bold text-gray-400 uppercase tracking-widest">
                   Accesos
                 </span>
-                <div className="text-right">
-                  <p className="text-[12px]">
-                    Usuario: {empresa.usuarioEmpresa}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <p className="text-[14px]">
-                      {showPass[empresa.id]
-                        ? empresa.passwordEmpresa
-                        : "••••••••"}
-                    </p>
-                    <button
-                      onClick={() => togglePass(empresa.id, setShowPass)}
-                      className="text-indigo-400"
+                {empresa.authCreado ? (
+                  <span
+                    title="Usuario creado en Auth"
+                    className="text-green-500 text-lg"
+                  >
+                    ✅
+                  </span>
+                ) : (
+                  <button
+                    className="text-emerald-500 hover:bg-emerald-50 rounded-lg p-1 transition-colors"
+                    title="Crear usuario Auth"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCrearAuth(empresa);
+                    }}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      👁
-                    </button>
-                  </div>
-                </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                      />
+                    </svg>
+                  </button>
+                )}
               </div>
 
               <div className="flex justify-between items-center pt-2">

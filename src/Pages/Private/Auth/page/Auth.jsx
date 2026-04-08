@@ -8,14 +8,28 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/admin"); // O a la ruta que quieras después de entrar
+      // Construimos el email igual que al crear: usuario@mercadoargentino.com
+      const emailFinal = email.includes("@")
+        ? email
+        : `${email.trim().toLowerCase()}@mercadoargentino.com`;
+
+      await signInWithEmailAndPassword(auth, emailFinal, password);
+
+      // Chequeamos si es empresa o admin
+      if (email.includes("@")) {
+        // Es el admin (usa email real)
+        navigate("/admin");
+      } else {
+        // Es una empresa (usó nombre de usuario)
+        navigate("/empresa/dashboard");
+      }
     } catch (error) {
-      alert("Error al entrar: " + error.message);
+      alert("Usuario o contraseña incorrectos");
     }
   };
   return (
@@ -44,13 +58,13 @@ const Auth = () => {
               htmlFor="email"
               className="block text-sm/6 font-medium text-gray-900"
             >
-              Email
+              Usuario o Email
             </label>
             <div className="mt-2">
               <input
                 id="email"
                 name="email"
-                type="email"
+                type="text"
                 required
                 autoComplete="email"
                 className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
@@ -76,16 +90,64 @@ const Auth = () => {
                 </a>
               </div>
             </div>
-            <div className="mt-2">
+
+            {/* 1. Agregamos 'relative' a este contenedor */}
+            <div className="mt-2 relative">
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 autoComplete="current-password"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                // 2. Agregamos 'pr-10' para que el texto no se superponga con el ojito
+                className="block w-full rounded-md bg-white px-3 py-1.5 pr-10 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                 onChange={(e) => setPassword(e.target.value)}
               />
+
+              {/* 3. Movimos el botón AQUÍ, dentro del div relative y después del input */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                // 'absolute inset-y-0 right-0' lo posiciona a la derecha y centrado verticalmente
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-indigo-600 transition-colors z-10"
+              >
+                {showPassword ? (
+                  // Icono Ojo Cerrado
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M9.88 9.88L14.12 14.12" />
+                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                    <path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                    <line x1="2" y1="2" x2="22" y2="22" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                ) : (
+                  // Icono Ojo Abierto
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
             </div>
           </div>
 

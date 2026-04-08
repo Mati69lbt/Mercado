@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { formatCurrency, togglePass } from "./configCompany";
 import { handleDeleteCompany } from "./deleteCompany";
 
-const PcDoubleRowTable = ({ list, onEdit }) => {
+const PcDoubleRowTable = ({ list, onEdit, onCrearAuth }) => {
   const companies = list || [];
   const [showPass, setShowPass] = useState({});
   const [expandedRows, setExpandedRows] = useState({});
@@ -32,7 +32,7 @@ const PcDoubleRowTable = ({ list, onEdit }) => {
 
   return (
     <div className="hidden md:block bg-white rounded-2xl shadow-sm  overflow-hidden transition-colors duration-300  ">
-      <div className="mb-4 px-2">
+      <div className="m-4 px-2">
         <div className="relative max-w-md">
           <input
             type="text"
@@ -344,7 +344,21 @@ const PcDoubleRowTable = ({ list, onEdit }) => {
                         className="px-4 py-3 font-black text-gray-400 uppercase text-[10px] bg-gray-100/30 text-right"
                         colSpan="1"
                       >
-                        Acciones:
+                        <div className="flex flex-col items-end gap-1">
+                          <span>Acciones:</span>
+                          {empresa.authCreado ? (
+                            <span
+                              title="Usuario creado en Auth"
+                              className="text-green-500 text-base"
+                            >
+                              ✅ Auth
+                            </span>
+                          ) : (
+                            <span className="text-red-400 text-[10px] font-bold">
+                              ❌ Sin Auth
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex justify-evenly gap-2">
@@ -372,6 +386,32 @@ const PcDoubleRowTable = ({ list, onEdit }) => {
                               />
                             </svg>
                           </button>
+                          {/* BOTÓN CREAR AUTH */}
+                          {!empresa.authCreado && (
+                            <button
+                              className="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-colors"
+                              title="Crear usuario Auth"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onCrearAuth(empresa);
+                              }}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                                />
+                              </svg>
+                            </button>
+                          )}
                           {/* SVG ELIMINAR ORIGINAL */}
                           <button
                             className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-colors"

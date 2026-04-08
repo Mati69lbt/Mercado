@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../../../../Firebase/config";
 import { Loading, Notify } from "notiflix";
+import { crearUsuarioAuth } from "./createUser";
 
 const urlCloudinary = import.meta.env.VITE_CLOUDINARY_URL;
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -62,17 +63,29 @@ export const handleSubmit = async (e, form, logoFile, navigate) => {
       Notify.success("Empresa actualizada correctamente");
       navigate("/admin");
     } else {
-      // CREAR: Usamos addDoc como antes
+      // Primero creamos el usuario en Firebase Auth
+      await crearUsuarioAuth(form.usuarioEmpresa, form.passwordEmpresa);
+
+      // Luego guardamos en Firestore
       await addDoc(collection(db, "empresas"), {
         ...finalData,
         fechaAlta: serverTimestamp(),
+        authCreado: true,
       });
+
       Notify.success("Empresa creada correctamente");
       navigate("/admin");
     }
   } catch (error) {
     console.error("Error al guardar en Firebase:", error);
-    Notify.failure("Error de base de datos. Revisá las reglas de Firestore.");
+
+    if (error.code === "auth/email-already-in-use") {
+      Notify.warning(
+        "El usuario ya existe en Firebase Auth. La empresa fue guardada en Firestore igualmente.",
+      );
+    } else {
+      Notify.failure("Error al guardar. Revisá los datos e intentá de nuevo.");
+    }
   } finally {
     Loading.remove();
   }
